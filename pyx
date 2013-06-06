@@ -76,7 +76,6 @@ def dbc(h,d,u,p):
 	try:	
 		global dbs
 		dbs=_mysql.connect(host=h,db=d,user=u,passwd=p)
-		#print 'Opening DB: '+d+'@'+h+':'+u+'{'+p+'}'
 	except Exception as e:
 		print 'Can not connect to DB:'
 		print e
