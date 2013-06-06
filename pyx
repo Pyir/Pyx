@@ -750,9 +750,6 @@ if len(sys.argv) > 1:
 			elif c == '\n':
 				payo += '\n'
 
-		# import string
-		#payld = filter(lambda x: x in string.printable, paylc)
-		
 		print '\n Time: '+eve[0]+'  Sensor: '+eve[1]+':'+eve[2]
 		print ' Event: '+eve[3]+' ('+eve[4]+')'
 		print ' SrcIP: '+decip(eve[5])+' '+sdp[1]+'/'+sdp[0]+' - '+rslv(decip(eve[5]))
