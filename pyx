@@ -187,7 +187,6 @@ if len(sys.argv) == 1:
 				_rcnt = line[0].split(' ')[1]+' '+line[1]
 				_rcnt = _rcnt[:58].ljust(58)
 				_rcnt += ' '+decip(line[2]).rjust(15)
-				#_rcnt += '>'+decip(line[3]) 
 				rcnt.append(_rcnt)
 				rc += 1
 			except Exception:
