@@ -734,7 +734,10 @@ if len(sys.argv) > 1:
 		qrystr = "select data_payload from data where cid = '"+cid+"' and sid = '"+sid+"'"
 		dbs.query(qrystr)
 		dbqry = dbs.store_result()
-		payl = dbqry.fetch_row()[0]
+		try:
+			payl = dbqry.fetch_row()[0]
+		except Exception:
+			payl = None
 		if payl:
 			paylc = unhex(str(payl[0]))
 		else:
