@@ -13,7 +13,7 @@ dt = datetime.datetime.now()
 dly = 30
 
 def err():
-  print 'Usage:'
+	print 'Usage:'
 	print '     -h help'
 	print '     -f /etc/pyx.conf              # define conf file' 
 	print '     -db host:db:user:pw           # db settings'
@@ -35,13 +35,10 @@ def err():
 	print '     -ss int                       # sensor ID'
 	print '     -c string                     # class text'
 	print '     -cc int                       # class ID'
-	print '     # To come:'	
 	print '     -l int                        # limit query return'
-	print '     -o sd|ds|se|es|de|ed          # order by (src->dst, etc)'
 
 
 def conf(f):
-	# Try to open and parse conf file passed	
 	try:
 		cf = open(f,'r')
 	except Exception:
@@ -76,7 +73,6 @@ def dbc(h,d,u,p):
 	try:	
 		global dbs
 		dbs=_mysql.connect(host=h,db=d,user=u,passwd=p)
-		#print 'Opening DB: '+d+'@'+h+':'+u+'{'+p+'}'
 	except Exception as e:
 		print 'Can not connect to DB:'
 		print e
@@ -312,8 +308,7 @@ if len(sys.argv) == 1:
 			udpdst.append((udpdstC[udC],udC))
 		udpdst = sorted(udpdst,reverse=True)
 
-		##################################################
-		# Console
+		### Write Out
 		screen.clear()
 		screen.addstr(0,0,'Top Event Counts')
 		screen.addstr(0,59,'  |  Recent Events')
@@ -330,7 +325,8 @@ if len(sys.argv) == 1:
 		for ln in rrev:
 			x += 1
 			screen.addstr(x,138,'  |  '+ln)
-		# Second row
+
+		# Bottom Row 
 		screen.addstr(32,0,'Top Src x Event')
 		screen.addstr(32,25,'  |  Top Dst x Event')
 		screen.addstr(32,55,'  |  Top Src x Dst')
@@ -384,7 +380,7 @@ if len(sys.argv) == 1:
 		for x in range(10):
 			cdt = datetime.datetime.now()
 			cdt = cdt.strftime('%Y/%m/%d %H:%M:%S')
-			screen.addstr(59,0,cdt+' (-'+str(dly-(dly/10.0*x))+'s)')
+			screen.addstr(59,0,cdt+' (-'+str(dly-(dly/10.0*x))+'s) (r|efresh) (q|uit)')
 			screen.refresh()
 			kp = screen.getch()	
 			if kp == 113: # 'q'
@@ -407,8 +403,7 @@ if len(sys.argv) == 1:
 	curses.endwin()
 	exit()	
 
-
- 
+### Got args, search or event
 if len(sys.argv) > 1:
 	# Parse args
 	sid,cid = None,None
@@ -593,6 +588,7 @@ if len(sys.argv) > 1:
 				exit()
 			if len(sigx) <= 3: 
 				print 'Signature text too small'
+				exit()
 
                 if a == '-xx':
 			try:
@@ -649,12 +645,6 @@ if len(sys.argv) > 1:
 				print 'limit has to be a number'
 				exit()
 
-                if a == '-o':
-			try:
-				odr = sa.pop(0)
-			except Exception:
-				print '-o has no order'
-				exit()
 	# Additional sanity
 	if (stcp or dtcp) and (sudp or dudp):
 		print 'Got both tcp and udp ports, pick one'
@@ -674,8 +664,7 @@ if len(sys.argv) > 1:
 		dip = ip
 
 
-
-	# If we got args from file or CLI use them, otherwise default
+	# If we got conf from file or args use them, otherwise default
 	try:
 		dbc(hn,db,un,pw)
 	except Exception:
@@ -737,7 +726,7 @@ if len(sys.argv) > 1:
 		try:
 			payl = dbqry.fetch_row()[0]
 		except Exception:
-			payl = None
+			payl = None 
 		if payl:
 			paylc = unhex(str(payl[0]))
 		else:
@@ -850,14 +839,23 @@ if len(sys.argv) > 1:
 
 
 		lc = 0 
-		for ln in store:
+		try:
+			if lim:
+				limit = int(lim)
+		except Exception:
+			limit = 10000
+
+		for ln in store:	
+			limit -= 1
+			if limit == 0:
+				break	
 			if lc == 0:
 				print 'Sensor'.ljust(15),
 				print 'Timestamp'.ljust(20),
 				print 'SrcIP'.ljust(21),
 				print 'DstIP'.ljust(21),
 				print 'SigID'.ljust(10),
-				print 'Class'.ljust(30),
+				#print 'Class'.ljust(20),
 				print 'Event(link)'
 			lc += 1
 			if lc == 50:
@@ -875,8 +873,7 @@ if len(sys.argv) > 1:
 			else:		
 				print decip(ln[7]).ljust(21),
 			print ln[3].ljust(10),
-			print ln[5].ljust(30),
-			print ln[4],
+			#print ln[5].ljust(20),
+			print ln[4][:86],
 			print '( pyx -e '+ln[0]+','+ln[1]+' )'
 		exit()
-    
